@@ -21,3 +21,5 @@ out/
 # Application local config
 application-local.yaml
 application-local.yml
+
+tmp/
