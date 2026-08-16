@@ -1,10 +1,12 @@
 package com.localsound.backend.download;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,11 +41,16 @@ public class DownloadController {
 
 		Resource resource = new FileSystemResource(audioPath);
 
+		ContentDisposition contentDisposition = ContentDisposition
+			.attachment()
+			.filename(audioPath.getFileName().toString(), StandardCharsets.UTF_8)
+			.build();
+
 		return ResponseEntity.ok()
 			.contentType(MediaType.parseMediaType("audio/mpeg"))
 			.header(
 				HttpHeaders.CONTENT_DISPOSITION, 
-				"attachment; filename=\"" + audioPath.getFileName() + "\""
+				contentDisposition.toString()
 			)
 			.body(resource);
 	}
