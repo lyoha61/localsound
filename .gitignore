@@ -1,13 +1,15 @@
 # Gradle
 .gradle/
 build/
+bin/
+
 
 # IDE
 .idea/
 *.iml
 out/
 
-# macOS
+# macOSj
 .DS_Store
 
 # Logs

@@ -1,0 +1,8 @@
+.gradle
+build
+.idea
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+tmp
