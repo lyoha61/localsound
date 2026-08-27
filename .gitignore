@@ -25,3 +25,5 @@ application-local.yaml
 application-local.yml
 
 tmp/
+cookies/*
+!cookies/.gitkeep

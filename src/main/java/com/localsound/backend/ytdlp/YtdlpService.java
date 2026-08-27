@@ -27,8 +27,13 @@ public class YtdlpService {
 
 		command.add("yt-dlp");
 
-		command.add("--cookies-from-browser");
-		command.add("chrome");
+		command.add("--js-runtimes");
+		command.add("node");
+		// command.add("--cookies-from-browser");
+		// command.add("chrome");
+
+		command.add("--cookies");
+		command.add("/app/cookies/youtube.txt");
 
 		command.add("--no-playlist");
 
