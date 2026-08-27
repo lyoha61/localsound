@@ -10,10 +10,19 @@ jobs:
     runs-on: self-hosted
 
     steps:
-     - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      
+      - name: Debug Gradle wrapper
+        shell: powershell
+        run: |
+          git config --show-origin --get core.autocrlf
+          git config --show-origin --get core.eol
+          git ls-files --eol gradlew
+          Get-Item gradlew | Select-Object Length
+          Format-Hex gradlew -Count 20
 
-     - name: Build Docker
-       run: docker compose build --no-cache
+      - name: Build Docker
+        run: docker compose build --no-cache
 
-     - name: Start Docker
-       run: docker compose up -d
+      - name: Start Docker
+        run: docker compose up -d
