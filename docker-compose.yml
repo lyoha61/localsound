@@ -7,3 +7,9 @@ services:
       - "8080:8080"
     volumes: 
      - ./cookies:/app/cookies
+  
+  whisper:
+    build: ./whisper
+    ports:
+      - "8000:8000"
+    gpus: all
