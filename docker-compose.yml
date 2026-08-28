@@ -7,9 +7,17 @@ services:
       - "8080:8080"
     volumes: 
      - ./cookies:/app/cookies
-  
-  whisper:
-    build: ./whisper
+
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: localsound
+      POSTGRES_USER: localsound
+      POSTGRES_PASSWORD: password
     ports:
-      - "8000:8000"
-    gpus: all
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:

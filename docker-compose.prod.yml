@@ -1,0 +1,7 @@
+services:
+
+  whisper:
+    build: ./whisper
+    ports:
+      - "8000:8000"
+    gpus: all
