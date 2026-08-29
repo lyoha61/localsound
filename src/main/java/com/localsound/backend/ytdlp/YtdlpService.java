@@ -6,17 +6,29 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.localsound.backend.download.DownloadOptions;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class YtdlpService {
 	
-	private static final Logger log = 
-		LoggerFactory.getLogger(YtdlpService.class);
+	@Value("${youtube.cookies-from-browser}")
+	private boolean cookiesFromBrowser;
+
+	private void addCookiesArguments(List<String> command) {
+		if (cookiesFromBrowser) {
+			command.add("--cookies-from-browser");
+			command.add("chrome");
+		} else {
+			command.add("--cookies");
+			command.add("/app/cookies/youtube.txt");
+		}
+	}
 
 	private List<String> buildCommand(
 		String url,
@@ -29,11 +41,8 @@ public class YtdlpService {
 
 		command.add("--js-runtimes");
 		command.add("node");
-		// command.add("--cookies-from-browser");
-		// command.add("chrome");
 
-		command.add("--cookies");
-		command.add("/app/cookies/youtube.txt");
+		addCookiesArguments(command);
 
 		command.add("--no-playlist");
 

@@ -45,12 +45,7 @@ public class DownloadController {
 			.build();
 
 		StreamingResponseBody response = outputStream -> {
-			try {
-				Files.copy(audioPath, outputStream);
-			} finally {
-				Files.deleteIfExists(audioPath);
-				Files.deleteIfExists(audioPath.getParent());
-			}
+			Files.copy(audioPath, outputStream);
 		};
 
 		return ResponseEntity.ok()

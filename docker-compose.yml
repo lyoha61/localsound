@@ -3,6 +3,9 @@ name: localsound
 services:
   backend:
     build: .
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/localsound
+      YOUTUBE_COOKIES_FROM_BROWSER: false
     ports:
       - "8080:8080"
     volumes: 
