@@ -66,6 +66,9 @@ public class YtdlpService {
 				.toString()
 		);
 
+		command.add("--print");
+		command.add("after_move:filepath");
+
 		command.add(url);
 
 		return command;
@@ -84,11 +87,17 @@ public class YtdlpService {
 
 		var process  = processBuiler.start();
 
+		Path audioPath = null;
+
 		try (var reader = process.inputReader()) {
 			String line;
 
 			while ((line = reader.readLine()) != null) {
 				log.info("yt-dlp: {}", line);
+
+				if (line.endsWith(".mp3")) {
+					audioPath = Path.of(line);
+				}
 			}
 		}
 
@@ -98,12 +107,10 @@ public class YtdlpService {
 			log.error("yt-dlp failed with exit code: {}", exitcode);
 		}
 
-		try (var files = Files.list(outputDirectory)) {
-			return files
-				.filter(Files::isRegularFile)
-				.filter(path -> path.toString().endsWith("mp3"))
-				.findFirst()
-				.orElseThrow(() -> new IOException("Downloaded MP3 not found"));
+		if (audioPath == null) {
+			throw new IOException("Downloaded MP3 not found");
 		}
+
+		return audioPath;
 	}
 }
