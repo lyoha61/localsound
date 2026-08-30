@@ -4,6 +4,7 @@ import java.nio.file.Path;
 
 import org.springframework.stereotype.Service;
 
+import com.localsound.backend.lyrics.LyricsService;
 import com.localsound.backend.song.dto.SongMetadata;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SongService {
 	private final SongMetadataService songMetadataService;
 	private final SongRepository songRepository;
+	private final LyricsService lyricsService;
 
 	public void create(Path audioPath) {
 		SongMetadata metadata = songMetadataService.getData(audioPath);
@@ -32,6 +34,9 @@ public class SongService {
 		);
 
 		songRepository.save(songEntity);
+
+		lyricsService.create(songEntity);
+
 		log.info("Audio file {} saved in DB", audioPath.getFileName());
 	}
 }
