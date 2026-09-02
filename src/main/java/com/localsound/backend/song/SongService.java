@@ -6,7 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.localsound.backend.lyrics.LyricsService;
 import com.localsound.backend.song.dto.SongMetadata;
+import com.localsound.backend.songfile.SongFileEntity;
+import com.localsound.backend.songfile.SongFileRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,10 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class SongService {
-	private final SongMetadataService songMetadataService;
 	private final SongRepository songRepository;
+	private final SongFileRepository songFileRepository;
+	private final SongMetadataService songMetadataService;
 	private final LyricsService lyricsService;
 
+	@Transactional
 	public void create(Path audioPath) {
 		SongMetadata metadata = songMetadataService.getData(audioPath);
 
@@ -27,13 +32,19 @@ public class SongService {
 			metadata.title(),
 			metadata.artist(),
 			metadata.album(),
-			metadata.duration(),
+			metadata.duration()
+		);
+
+		var songFileEntity = new SongFileEntity(
+			songEntity,
 			audioPath.toString(),
 			format,
 			metadata.fileSize()
 		);
 
 		songRepository.save(songEntity);
+
+		songFileRepository.save(songFileEntity);
 
 		lyricsService.create(songEntity);
 

@@ -5,8 +5,6 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
@@ -38,16 +36,6 @@ public class SongEntity {
 	private Integer duration;
 
 	@Column(nullable = false)
-	private String filePath;
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private SongFormat format;
-
-	@Column(nullable = false)
-	private Long fileSize;
-
-	@Column(nullable = false)
 	private Instant createdAt;
 
 	@Column(nullable = false)
@@ -72,17 +60,11 @@ public class SongEntity {
 		String title,
 		String artist,
 		String album,
-		Integer duration,
-		String filePath,
-		SongFormat format,
-		Long fileSize
+		Integer duration
 	) {
 		this.title = title;
 		this.artist = artist;
 		this.album = album;
 		this.duration = duration;
-		this.filePath = filePath;
-		this.format = format;
-		this.fileSize = fileSize;
 	}
 }
