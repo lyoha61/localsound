@@ -4,6 +4,7 @@ Backend для музыкального приложения LocalSound.
 
 ## Дока
 [flow скачивания песни по URL](docs/song-download-flow.md)
+[flow поиска текста песни](docs/lyrics-fetching-flow.md)
 
 ## Стек
 
