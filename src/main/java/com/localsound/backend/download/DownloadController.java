@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/download")
+@Slf4j
 public class DownloadController {
 	
 	private final DownloadService downloadService;
@@ -45,7 +47,11 @@ public class DownloadController {
 			.build();
 
 		StreamingResponseBody response = outputStream -> {
+			log.info("Starting stream: {}", audioPath);
+
 			Files.copy(audioPath, outputStream);
+
+			log.info("Finished stream: {}", audioPath);
 		};
 
 		return ResponseEntity.ok()
