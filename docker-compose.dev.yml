@@ -1,0 +1,8 @@
+services:
+  backend:
+    environment:
+      YOUTUBE_COOKIES_FROM_BROWSER: "false"
+    restart: "no"
+
+  postgres:
+    restart: "no"

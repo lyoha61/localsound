@@ -1,7 +1,13 @@
 services:
+  backend:
+    restart: always
+
+  postgres:
+    restart: always
 
   whisper:
     build: ./whisper
     ports:
       - "8000:8000"
+    restart: always
     gpus: all

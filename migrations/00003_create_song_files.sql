@@ -1,0 +1,23 @@
+-- +goose Up
+CREATE TABLE song_files (
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
+	song_id UUID NOT NULL UNIQUE REFERENCES songs(id) ON DELETE CASCADE,
+	file_path TEXT NOT NULL,
+	format VARCHAR(20) NOT NULL,
+	file_size BIGINT NOT NULL,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE songs
+ DROP COLUMN file_path, 
+ DROP COLUMN format, 
+ DROP COLUMN file_size;
+
+-- +goose Down
+ALTER TABLE songs
+ ADD COLUMN file_path TEXT NOT NULL DEFAULT '',
+ ADD COLUMN format VARCHAR(20) NOT NULL DEFAULT '',
+ ADD COLUMN file_size BIGINT NOT NULL DEFAULT 0;
+
+DROP TABLE IF EXISTS song_files CASCADE;

@@ -1,47 +1,32 @@
-FROM eclipse-temurin:25-jdk AS build
+# Этап сборки бинарника
+FROM golang:1.26-alpine AS builder
+
+WORKDIR /build
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /build/server ./cmd/api
+
+# Финальный легковесный образ
+FROM alpine:3.21
 
 WORKDIR /app
 
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle settings.gradle ./
+RUN apk add --no-cache \
+    curl \
+    ffmpeg \
+    nodejs \
+    python3 \
+    ca-certificates
 
-RUN chmod +x gradlew
-RUN ls -la /app
-RUN head -n 1 gradlew
-RUN ./gradlew dependencies --no-daemon
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
+    && chmod a+rx /usr/local/bin/yt-dlp
 
-COPY src src
-
-RUN ./gradlew bootJar --no-daemon
-
-
-FROM eclipse-temurin:25-jre
-
-WORKDIR /app
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       curl \
-       ffmpeg \
-			 nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-ARG TARGETARCH
-
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_aarch64 \
-        -o /usr/local/bin/yt-dlp; \
-    elif [ "$TARGETARCH" = "amd64" ]; then \
-        curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux \
-        -o /usr/local/bin/yt-dlp; \
-    else \
-        echo "Unsupported architecture: $TARGETARCH" && exit 1; \
-    fi \
-    && chmod +x /usr/local/bin/yt-dlp
-
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=builder /build/server /app/server
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["/app/server"]

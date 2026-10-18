@@ -1,0 +1,16 @@
+-- +goose Up
+CREATE TABLE songs (
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
+	title VARCHAR(255) NOT NULL,
+	artist VARCHAR(255),
+	album VARCHAR(255),
+	duration INTEGER NOT NULL,
+	file_path TEXT NOT NULL,
+	format VARCHAR(20) NOT NULL,
+	file_size BIGINT NOT NULL,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- +goose Down
+DROP TABLE IF EXISTS songs CASCADE;

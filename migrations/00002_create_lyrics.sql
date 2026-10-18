@@ -1,0 +1,13 @@
+-- +goose Up
+CREATE TABLE lyrics (
+	id UUID PRIMARY KEY DEFAULT uuidv7(),
+	song_id UUID NOT NULL UNIQUE REFERENCES songs(id) ON DELETE CASCADE,
+	text TEXT,
+	lyrics_status VARCHAR(20) DEFAULT 'PENDING',
+	sync_status VARCHAR(20) DEFAULT 'PENDING',
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- +goose Down
+DROP TABLE IF EXISTS lyrics CASCADE;

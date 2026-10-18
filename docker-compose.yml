@@ -1,15 +1,21 @@
-name: localsound
+name: localsound-go
 
 services:
   backend:
     build: .
     environment:
-      DATABASE_URL: jdbc:postgresql://postgres:5432/localsound
-      YOUTUBE_COOKIES_FROM_BROWSER: false
+      DATABASE_URL: postgres://localsound:password@postgres:5432/localsound?sslmode=disable
+      YOUTUBE_COOKIES_FROM_BROWSER: "false"
+      YOUTUBE_COOKIES_PATH: /app/cookies/youtube.txt
+      STORAGE_DIR: /app/storage/songs
     ports:
       - "8080:8080"
-    volumes: 
-     - ./cookies:/app/cookies
+    volumes:
+      - ./cookies:/app/cookies
+      - ./storage:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   postgres:
     image: postgres:18
@@ -21,6 +27,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localsound -d localsound"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
