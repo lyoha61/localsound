@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"go.uber.org/zap"
 	"localsound-backend/internal/song"
 	"localsound-backend/internal/storage"
 	"localsound-backend/internal/ytdlp"
+
+	"go.uber.org/zap"
 )
 
 type DownloadRequest struct {
@@ -45,7 +46,6 @@ func (s *Service) Download(ctx context.Context, url string, options ytdlp.Downlo
 
 	if _, err := s.songService.Create(ctx, audioPath); err != nil {
 		s.logger.Errorf("Failed to persist song metadata for %s: %v", audioPath, err)
-		// продолжаем, так как аудиофайл уже скачан
 	}
 
 	s.logger.Infof("URL processed: %s", url)

@@ -15,6 +15,7 @@ import (
 
 type Provider interface {
 	FindLyrics(ctx context.Context, req LyricsRequest) (*LyricsDto, error)
+	Search(ctx context.Context, query string) ([]LyricsDto, error)
 }
 
 type LrcLibClient struct {
@@ -23,11 +24,25 @@ type LrcLibClient struct {
 	logger     *zap.SugaredLogger
 }
 
+type userAgentTransport struct {
+	rt        http.RoundTripper
+	userAgent string
+}
+
+func (t *userAgentTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("User-Agent", t.userAgent)
+	return t.rt.RoundTrip(req)
+}
+
 func NewLrcLibClient(baseURL string, logger *zap.SugaredLogger) *LrcLibClient {
 	return &LrcLibClient{
 		baseURL: strings.TrimRight(baseURL, "/"),
 		httpClient: &http.Client{
 			Timeout: 15 * time.Second,
+			Transport: &userAgentTransport{
+				rt:        http.DefaultTransport,
+				userAgent: "LocalSound/1.0 (https://github.com/lyoha61/localsound)",
+			},
 		},
 		logger: logger,
 	}
@@ -62,7 +77,6 @@ func (c *LrcLibClient) findByGet(ctx context.Context, req LyricsRequest) (*Lyric
 	if err != nil {
 		return nil, err
 	}
-	httpReq.Header.Set("User-Agent", "LocalSound/1.0 (https://github.com/lyoha61/localsound)")
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
@@ -115,7 +129,6 @@ func (c *LrcLibClient) findBySearch(ctx context.Context, req LyricsRequest) (*Ly
 	if err != nil {
 		return nil, err
 	}
-	httpReq.Header.Set("User-Agent", "LocalSound/1.0 (https://github.com/lyoha61/localsound)")
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
@@ -140,4 +153,34 @@ func (c *LrcLibClient) findBySearch(ctx context.Context, req LyricsRequest) (*Ly
 	}
 
 	return &list[0], nil
+}
+
+func (c *LrcLibClient) Search(ctx context.Context, query string) ([]LyricsDto, error) {
+	endpoint := fmt.Sprintf("%s/search?q=%s", c.baseURL, url.QueryEscape(query))
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	c.logger.Infof("Sending request to LRCLIB: query='%s'", query)
+	resp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("LRCLIB /search request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("LRCLIB /search status code %d", resp.StatusCode)
+	}
+
+	var list []LyricsDto
+	if err := json.NewDecoder(resp.Body).Decode(&list); err != nil {
+		return nil, fmt.Errorf("failed to decode LRCLIB search response: %w", err)
+	}
+
+	c.logger.Infof("LRCLIB search finished: found %d results for query='%s'", len(list), query)
+
+	return list, nil
 }

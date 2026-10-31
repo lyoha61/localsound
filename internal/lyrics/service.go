@@ -100,3 +100,7 @@ func (s *Service) ProcessPending(ctx context.Context) error {
 
 	return nil
 }
+
+func (s *Service) Search(ctx context.Context, query string) ([]LyricsDto, error) {
+	return s.provider.Search(ctx, query)
+}

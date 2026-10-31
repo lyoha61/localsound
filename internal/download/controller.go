@@ -60,6 +60,10 @@ func (c *Controller) DownloadFromURL(w http.ResponseWriter, r *http.Request) {
 	fileName := filepath.Base(audioPath)
 	encodedFileName := url.PathEscape(fileName)
 
+	if stat, err := file.Stat(); err == nil {
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
+	}
+
 	w.Header().Set("Content-Type", "audio/mpeg")
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, fileName, encodedFileName))
 
