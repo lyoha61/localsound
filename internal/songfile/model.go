@@ -1,6 +1,7 @@
 package songfile
 
 import (
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,6 +13,24 @@ const (
 	FormatMP3 SongFormat = "MP3"
 	FormatM4A SongFormat = "M4A"
 )
+
+func (sf SongFormat) IsValid() bool {
+	switch strings.ToUpper(string(sf)) {
+	case string(FormatMP3), string(FormatM4A):
+		return true
+	default:
+		return false
+	}
+}
+
+func (sf SongFormat) ContentType() string {
+	switch strings.ToUpper(string(sf)) {
+	case string(FormatM4A):
+		return "audio/mp4"
+	default:
+		return "audio/mpeg"
+	}
+}
 
 func ParseSongFormat(format string) SongFormat {
 	switch format {

@@ -76,7 +76,6 @@ func (s *Service) buildCommand(url string, options DownloadOptions, outputDir st
 }
 
 func (s *Service) Download(ctx context.Context, url string, options DownloadOptions, outputDir string) (string, error) {
-	// Добавляем защитный таймаут 5 минут на выполнение yt-dlp, если в контексте нет меньшего таймаута
 	execCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 	defer cancel()
 
@@ -87,7 +86,7 @@ func (s *Service) Download(ctx context.Context, url string, options DownloadOpti
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
 
-	s.logger.Infof("Executing yt-dlp for URL: %s", url)
+	s.logger.Infof("Executing yt-dlp for URL: %s (format: %s)", url, options.AudioFormat)
 
 	err := cmd.Run()
 	if err != nil {
@@ -95,7 +94,6 @@ func (s *Service) Download(ctx context.Context, url string, options DownloadOpti
 		return "", fmt.Errorf("yt-dlp failed: %w (stderr: %s)", err, strings.TrimSpace(stderrBuf.String()))
 	}
 
-	// Извлекаем путь к файлу из stdout (благодаря опции --print after_move:filepath)
 	stdoutLines := strings.Split(strings.TrimSpace(stdoutBuf.String()), "\n")
 	var audioPath string
 	for i := len(stdoutLines) - 1; i >= 0; i-- {

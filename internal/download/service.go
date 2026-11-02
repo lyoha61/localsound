@@ -11,10 +11,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type DownloadRequest struct {
-	URL string `json:"url"`
-}
-
 type Service struct {
 	ytdlpService   *ytdlp.Service
 	storageService *storage.StorageService

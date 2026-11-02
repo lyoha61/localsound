@@ -8,9 +8,12 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"localsound-backend/internal/songfile"
+	"localsound-backend/internal/ytdlp"
 
 	"go.uber.org/zap"
-	"localsound-backend/internal/ytdlp"
 )
 
 type Controller struct {
@@ -25,6 +28,11 @@ func NewController(service *Service, logger *zap.SugaredLogger) *Controller {
 	}
 }
 
+type DownloadRequest struct {
+	URL    string              `json:"url"`
+	Format songfile.SongFormat `json:"format"`
+}
+
 func (c *Controller) DownloadFromURL(w http.ResponseWriter, r *http.Request) {
 	var body DownloadRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -37,9 +45,14 @@ func (c *Controller) DownloadFromURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !body.Format.IsValid() {
+		http.Error(w, `{"error": "Invalid format"}`, http.StatusBadRequest)
+		return
+	}
+
 	options := ytdlp.DownloadOptions{
 		ExtractAudio: true,
-		AudioFormat:  "mp3",
+		AudioFormat:  strings.ToLower(string(body.Format)),
 	}
 
 	audioPath, err := c.service.Download(r.Context(), body.URL, options)
@@ -64,7 +77,7 @@ func (c *Controller) DownloadFromURL(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
 	}
 
-	w.Header().Set("Content-Type", "audio/mpeg")
+	w.Header().Set("Content-Type", body.Format.ContentType())
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, fileName, encodedFileName))
 
 	c.logger.Infof("Starting stream: %s", audioPath)
