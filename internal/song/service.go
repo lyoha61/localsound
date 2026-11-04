@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"go.uber.org/zap"
 	"localsound-backend/internal/lyrics"
 	"localsound-backend/internal/songfile"
+
+	"go.uber.org/zap"
 )
 
 type Service struct {
@@ -79,4 +80,8 @@ func (s *Service) Create(ctx context.Context, audioPath string) (*SongEntity, er
 
 	s.logger.Infof("Audio file %s saved in DB with song id=%s", filepath.Base(audioPath), songEntity.ID)
 	return songEntity, nil
+}
+
+func (s *Service) GetSongs(ctx context.Context) ([]SongEntity, error) {
+	return s.songRepo.GetAll(ctx)
 }

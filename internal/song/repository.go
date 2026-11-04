@@ -53,3 +53,13 @@ func (r *Repository) FindByID(ctx context.Context, id uuid.UUID) (*SongEntity, e
 	}
 	return &s, nil
 }
+
+func (r *Repository) GetAll(ctx context.Context) ([]SongEntity, error) {
+	s := []SongEntity{}
+	query := `SELECT id, title, artist, album, duration, created_at, updated_at FROM songs ORDER BY created_at DESC`
+	if err := r.db.SelectContext(ctx, &s, query); err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
