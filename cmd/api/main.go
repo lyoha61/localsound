@@ -82,9 +82,11 @@ func main() {
 	lrclibClient := lyrics.NewLrcLibClient(cfg.LrclibBaseURL, logger)
 	lyricsSvc := lyrics.NewService(lyricsRepo, lrclibClient, logger)
 	lyricsCtrl := lyrics.NewController(lyricsSvc, logger)
-	songSvc := song.NewService(songRepo, songFileRepo, metadataSvc, lyricsSvc, logger)
 
 	ytdlpSvc := ytdlp.NewService(cfg.CookiesFromBrowser, cfg.CookiesPath, logger)
+	songSvc := song.NewService(songRepo, songFileRepo, metadataSvc, lyricsSvc, ytdlpSvc, logger)
+	songCtrl := song.NewController(songSvc, logger)
+
 	downloadSvc := download.NewService(ytdlpSvc, storageSvc, songSvc, logger)
 	downloadCtrl := download.NewController(downloadSvc, logger)
 
@@ -100,6 +102,8 @@ func main() {
 		r.Post("/download", downloadCtrl.DownloadFromURL)
 
 		r.Get("/lyrics/search", lyricsCtrl.SearchLyricsLRCLIB)
+
+		r.Get("/songs/search", songCtrl.SearchSong)
 	})
 
 	server := &http.Server{

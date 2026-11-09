@@ -9,15 +9,21 @@ import (
 	"go.uber.org/zap"
 
 	"localsound-backend/internal/song"
+	"localsound-backend/internal/ytdlp"
 )
 
 type mockService struct {
-	songs []song.SongDto
-	err   error
+	songs         []song.SongDto
+	searchResults []ytdlp.SearchResultItem
+	err           error
 }
 
 func (m *mockService) GetSongs(ctx context.Context) ([]song.SongDto, error) {
 	return m.songs, m.err
+}
+
+func (m *mockService) SearchSongs(ctx context.Context, query string) ([]ytdlp.SearchResultItem, error) {
+	return m.searchResults, m.err
 }
 
 func TestController_GetSongs(t *testing.T) {
